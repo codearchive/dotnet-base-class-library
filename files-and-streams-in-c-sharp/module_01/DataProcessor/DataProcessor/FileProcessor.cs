@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace DataProcessor
 {
@@ -14,6 +15,12 @@ namespace DataProcessor
         public void Process()
         {
             Console.WriteLine($"Begin process of {InputFilePath}");
+
+            if (!File.Exists(InputFilePath))
+            {
+                Console.WriteLine($"ERROR: file {InputFilePath} does not exist");
+                return;
+            }
         }
     }
 }
