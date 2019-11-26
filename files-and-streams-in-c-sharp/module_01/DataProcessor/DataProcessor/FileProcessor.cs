@@ -30,6 +30,7 @@ namespace DataProcessor
             Console.WriteLine($"Root data path is {rootDirectoryPath}");
 
             string inputFileDirectoryPath = Path.GetDirectoryName(InputFilePath);
+            Console.WriteLine($"inputFileDirectoryPath: {inputFileDirectoryPath}");
             string backupDirectoryPath = Path.Combine(rootDirectoryPath, BackupDirectoryName);
 
             //if (!Directory.Exists(backupDirectoryPath))
@@ -42,6 +43,18 @@ namespace DataProcessor
             string backupFilePath = Path.Combine(backupDirectoryPath, inputFileName);
             Console.WriteLine($"Copying {InputFilePath} to {backupFilePath}");
             File.Copy(InputFilePath, backupFilePath, true);
+
+            Directory.CreateDirectory(Path.Combine(rootDirectoryPath, InProgressDirectoryName));
+            string inProgressFilePath = Path.Combine(rootDirectoryPath, InProgressDirectoryName, inputFileName);
+
+            if (File.Exists(inProgressFilePath))
+            {
+                Console.WriteLine($"ERROR: file with the name {inProgressFilePath} is already being processed");
+                return;
+            }
+
+            Console.WriteLine($"Moving {InputFilePath} to {inProgressFilePath}");
+            File.Move(InputFilePath, inProgressFilePath);
         }
     }
 }
