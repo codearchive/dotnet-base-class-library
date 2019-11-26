@@ -5,6 +5,10 @@ namespace DataProcessor
 {
     internal class FileProcessor
     {
+        private static readonly string BackupDirectoryName = "backup";
+        private static readonly string InProgressDirectoryName = "processing";
+        private static readonly string CompletedDirectoryName = "completed";
+
         private string InputFilePath { get; }
 
         public FileProcessor(string filePath)
@@ -22,8 +26,17 @@ namespace DataProcessor
                 return;
             }
 
-            string rootDirectoryPath = new DirectoryInfo(InputFilePath).Parent.FullName;
-            Console.WriteLine(rootDirectoryPath);
+            string rootDirectoryPath = new DirectoryInfo(InputFilePath).Parent.Parent.FullName;
+            Console.WriteLine($"Root data path is {rootDirectoryPath}");
+
+            string inputFileDirectoryPath = Path.GetDirectoryName(InputFilePath);
+            string backupDirectoryPath = Path.Combine(rootDirectoryPath, BackupDirectoryName);
+
+            //if (!Directory.Exists(backupDirectoryPath))
+            //{
+            //    Console.WriteLine($"Creating {backupDirectoryPath}");
+                Directory.CreateDirectory(backupDirectoryPath);
+            //}
         }
     }
 }
