@@ -24,7 +24,7 @@ namespace DataProcessor
                     inputFileWatcher.IncludeSubdirectories = false;
                     inputFileWatcher.InternalBufferSize = 32768;
                     inputFileWatcher.Filter = "*.*"; // by default
-                    inputFileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+                    inputFileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
 
                     inputFileWatcher.Created += FileCreated;
                     inputFileWatcher.Changed += FileChanged;
