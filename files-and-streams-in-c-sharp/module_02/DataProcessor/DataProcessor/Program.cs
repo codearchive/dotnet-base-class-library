@@ -65,6 +65,9 @@ namespace DataProcessor
         private static void FileCreated(object sender, FileSystemEventArgs e)
         {
             Console.WriteLine($"* File created: {e.Name} - type: {e.ChangeType}");
+
+            var fileProcessor = new FileProcessor(e.FullPath);
+            fileProcessor.Process();
         }
 
         private static void ProcessDirectory(string directoryPath, string fileType)
