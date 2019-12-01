@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Runtime.Caching;
 using System.IO;
 using System.Threading;
-using System.Xml;
 
 namespace DataProcessor
 {
     class Program
     {
-        private static ConcurrentDictionary<string, string> FilesToProcess = new ConcurrentDictionary<string, string>();
-
+        private static MemoryCache FilesToProcess = MemoryCache.Default;
         static void Main(string[] args)
         {
             Console.WriteLine("Parsing command line options");
@@ -24,7 +22,6 @@ namespace DataProcessor
             {
                 Console.WriteLine($"Watching directory {directoryToWatch} for changes");
                 using (var inputFileWatcher = new FileSystemWatcher(directoryToWatch))
-                using (var timer = new Timer(ProcessFiles, null, 0, 1000))
                 {
                     inputFileWatcher.IncludeSubdirectories = false;
                     inputFileWatcher.InternalBufferSize = 32768;
@@ -69,7 +66,7 @@ namespace DataProcessor
             //var fileProcessor = new FileProcessor(e.FullPath);
             //fileProcessor.Process();
 
-            FilesToProcess.TryAdd(e.FullPath, e.FullPath);
+            AddToCache(e.FullPath);
         }
 
         private static void FileCreated(object sender, FileSystemEventArgs e)
@@ -79,44 +76,34 @@ namespace DataProcessor
             //var fileProcessor = new FileProcessor(e.FullPath);
             //fileProcessor.Process();
 
-            FilesToProcess.TryAdd(e.FullPath, e.FullPath);
+            AddToCache(e.FullPath);
         }
 
-        private static void ProcessDirectory(string directoryPath, string fileType)
+        private static void AddToCache(string fullPath)
         {
-            //var allFiles = Directory.GetFiles(directoryPath);
+            var item = new CacheItem(fullPath, fullPath);
 
-            switch (fileType)
+            var policy = new CacheItemPolicy
             {
-                case "TEXT":
-                    string[] textFiles = Directory.GetFiles(directoryPath, "*.txt");
-                    foreach (var textFilePath in textFiles)
-                    {
-                        var fileProcessor = new FileProcessor(textFilePath);
-                        fileProcessor.Process();
-                    }
-                    break;
-                default:
-                    Console.WriteLine($"ERROR: {fileType} is not supported");
-                    return;
+                RemovedCallback = ProcessFile,
+                SlidingExpiration = TimeSpan.FromSeconds(2)
+            };
+
+            FilesToProcess.Add(item, policy);
+        }
+
+        private static void ProcessFile(CacheEntryRemovedArguments arguments)
+        {
+            Console.WriteLine($"*  Cache item removed: {arguments.CacheItem.Key} because {arguments.RemovedReason}");
+
+            if (arguments.RemovedReason == CacheEntryRemovedReason.Expired)
+            {
+                var fileProcessor = new FileProcessor(arguments.CacheItem.Key);
+                fileProcessor.Process();
             }
-        }
-
-        private static void ProcessSingleFile(string filePath)
-        {
-            var fileProcessor = new FileProcessor(filePath);
-            fileProcessor.Process();
-        }
-
-        private static void ProcessFiles(object stateInfo)
-        {
-            foreach (var fileName in FilesToProcess.Keys)
+            else
             {
-                if (FilesToProcess.TryRemove(fileName, out _))
-                {
-                    var fileProcessor = new FileProcessor(fileName);
-                    fileProcessor.Process();
-                }
+                Console.WriteLine($"WARNING: {arguments.CacheItem.Key} was removed unexpectedly");
             }
         }
     }
