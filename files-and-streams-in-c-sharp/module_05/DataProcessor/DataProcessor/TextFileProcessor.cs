@@ -18,23 +18,35 @@ namespace DataProcessor
             using (var inputStreamReader = new StreamReader(InputFilePath))
             using (var outputStreamWriter = new StreamWriter(OutputFilePath))
             {
-
+                var currentLineNumber = 1;
                 while (!inputStreamReader.EndOfStream)
                 {
                     string line = inputStreamReader.ReadLine();
 
-                    string processedLine = line.ToUpperInvariant();
-
-                    bool isLastLine = inputStreamReader.EndOfStream;
-
-                    if (isLastLine)
+                    if (currentLineNumber == 2)
                     {
-                        outputStreamWriter.Write(processedLine);
+                        Write(line.ToUpperInvariant());
                     }
                     else
                     {
-                        outputStreamWriter.WriteLine(processedLine);
-                    } 
+                        Write(line);
+                    }
+
+                    currentLineNumber++;
+
+                    void Write(string content)
+                    {
+                        bool isLastLine = inputStreamReader.EndOfStream;
+
+                        if (isLastLine)
+                        {
+                            outputStreamWriter.Write(content);
+                        }
+                        else
+                        {
+                            outputStreamWriter.WriteLine(content);
+                        }
+                    }
                 }
             }
         }
