@@ -21,15 +21,28 @@ namespace DataProcessor
 
         public void Process()
         {
-            byte[] data = File.ReadAllBytes(InputFilePath);
+            using (FileStream input = File.Open(InputFilePath, FileMode.Open, FileAccess.Read))
+            using (FileStream output = File.Create(OutputFilePath))
+            {
+                const int endOfStream = -1;
 
-            byte largest = data.Max();
+                int largestByte = 0;
 
-            byte[] newData = new byte[data.Length + 1];
-            Array.Copy(data, newData, data.Length);
-            newData[newData.Length - 1] = largest;
+                int currentByte = input.ReadByte();
+                while (currentByte != endOfStream)
+                {
+                    output.WriteByte((byte)currentByte);
 
-            File.WriteAllBytes(OutputFilePath, newData);
+                    if (currentByte > largestByte)
+                    {
+                        largestByte = currentByte;
+                    }
+
+                    currentByte = input.ReadByte();
+                }
+
+                output.WriteByte((byte)largestByte);
+            }
         }
     }
 }
