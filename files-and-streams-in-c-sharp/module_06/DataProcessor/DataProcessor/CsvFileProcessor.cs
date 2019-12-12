@@ -29,9 +29,9 @@ namespace DataProcessor
                 //csvReader.Configuration.IgnoreBlankLines = false; // Unit 6.4
                 //csvReader.Configuration.Delimiter = ";"; // Unit 6.5
                 //csvReader.Configuration.HasHeaderRecord = false; // Unit 6.6
-                csvReader.Configuration.HeaderValidated = null;
-                csvReader.Configuration.MissingFieldFound = null;
-
+                //csvReader.Configuration.HeaderValidated = null; // Unit 6.8
+                //csvReader.Configuration.MissingFieldFound = null; // Unit 6.8
+                csvReader.Configuration.RegisterClassMap<ProcessedOrderMap>();
 
                 foreach (ProcessedOrder record in records)
                 {
