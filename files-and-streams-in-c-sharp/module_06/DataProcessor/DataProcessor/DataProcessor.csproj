@@ -53,6 +53,7 @@
     <Compile Include="BinaryFileProcessor.cs" />
     <Compile Include="CsvFileProcessor.cs" />
     <Compile Include="FileProcessor.cs" />
+    <Compile Include="Order.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextFileProcessor.cs" />
