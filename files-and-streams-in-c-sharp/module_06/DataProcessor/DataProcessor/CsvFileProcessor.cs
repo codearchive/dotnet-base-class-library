@@ -21,7 +21,7 @@ namespace DataProcessor
             using (StreamReader input = File.OpenText(InputFilePath))
             using (CsvReader csvReader = new CsvReader(input))
             {
-                IEnumerable<Order> records = csvReader.GetRecords<Order>();
+                IEnumerable<ProcessedOrder> records = csvReader.GetRecords<ProcessedOrder>();
 
                 csvReader.Configuration.TrimOptions = CsvHelper.Configuration.TrimOptions.Trim;
                 csvReader.Configuration.Comment = '@';
@@ -29,13 +29,15 @@ namespace DataProcessor
                 //csvReader.Configuration.IgnoreBlankLines = false; // Unit 6.4
                 //csvReader.Configuration.Delimiter = ";"; // Unit 6.5
                 //csvReader.Configuration.HasHeaderRecord = false; // Unit 6.6
+                csvReader.Configuration.HeaderValidated = null;
+                csvReader.Configuration.MissingFieldFound = null;
 
-                foreach (Order record in records)
+
+                foreach (ProcessedOrder record in records)
                 {
                     Console.WriteLine(record.OrderNumber);
-                    Console.WriteLine(record.CustomerNumber);
-                    Console.WriteLine(record.Description);
-                    Console.WriteLine(record.Quantity);
+                    Console.WriteLine(record.Customer);
+                    Console.WriteLine(record.Amount);
                 }
             }
         }
