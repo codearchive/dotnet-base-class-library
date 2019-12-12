@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CsvHelper;
 
 namespace DataProcessor
@@ -20,24 +21,31 @@ namespace DataProcessor
         {
             using (StreamReader input = File.OpenText(InputFilePath))
             using (CsvReader csvReader = new CsvReader(input))
+            using (StreamWriter output = File.CreateText(OutputFilePath))
+            using (CsvWriter csvWriter = new CsvWriter(output))
             {
-                IEnumerable<ProcessedOrder> records = csvReader.GetRecords<ProcessedOrder>();
-
                 csvReader.Configuration.TrimOptions = CsvHelper.Configuration.TrimOptions.Trim;
                 csvReader.Configuration.Comment = '@';
                 csvReader.Configuration.AllowComments = true;
-                //csvReader.Configuration.IgnoreBlankLines = false; // Unit 6.4
-                //csvReader.Configuration.Delimiter = ";"; // Unit 6.5
-                //csvReader.Configuration.HasHeaderRecord = false; // Unit 6.6
-                //csvReader.Configuration.HeaderValidated = null; // Unit 6.8
-                //csvReader.Configuration.MissingFieldFound = null; // Unit 6.8
                 csvReader.Configuration.RegisterClassMap<ProcessedOrderMap>();
 
-                foreach (ProcessedOrder record in records)
+                IEnumerable<ProcessedOrder> records = csvReader.GetRecords<ProcessedOrder>();
+
+                //csvWriter.WriteRecords(records);
+
+                csvWriter.WriteHeader<ProcessedOrder>();
+                csvWriter.NextRecord();
+
+                var recordsArray = records.ToArray();
+                for (int i = 0; i < recordsArray.Length; i++)
                 {
-                    Console.WriteLine(record.OrderNumber);
-                    Console.WriteLine(record.Customer);
-                    Console.WriteLine(record.Amount);
+                    csvWriter.WriteField(recordsArray[i].OrderNumber);
+                    csvWriter.WriteField(recordsArray[i].Customer);
+                    csvWriter.WriteField(recordsArray[i].Amount);
+
+                    bool isLastRecord = i == recordsArray.Length - 1;
+
+                    if (!isLastRecord) csvWriter.NextRecord();
                 }
             }
         }
