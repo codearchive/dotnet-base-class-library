@@ -2,12 +2,16 @@
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using Xunit;
+using ApprovalTests;
+using ApprovalTests.Reporters;
+
 
 namespace DataProcessor.Tests
 {
     public class CsvFileProcessorShould
     {
         [Fact]
+        [UseReporter(typeof(DiffReporter))]
         public void AddLargestNumber()
         {
             const string inputDir = @"d:\root\in";
@@ -39,12 +43,7 @@ namespace DataProcessor.Tests
 
             MockFileData processedFile = mockFileSystem.GetFile(outputFilePath);
 
-            string[] lines = processedFile.TextContents.SplitLines();
-
-            Assert.Equal("OrderNumber,Customer,Amount", lines[0]);
-            Assert.Equal("42,100001,2", lines[1]);
-            Assert.Equal("43,200002,1", lines[2]);
-            Assert.Equal("44,300003,5", lines[3]);
+            Approvals.Verify(processedFile.TextContents);
         }
     }
 }
